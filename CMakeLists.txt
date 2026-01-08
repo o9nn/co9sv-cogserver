@@ -105,6 +105,34 @@ ELSE (JSONCPP_FOUND)
 	MESSAGE(STATUS "MCP missing: needed for Model Context Protocol support (jsoncpp required).")
 ENDIF (JSONCPP_FOUND)
 
+# ----------------------------------------------------------
+# PyTorch/ATen tensor support (optional)
+# Use -DWITH_ATEN=ON to enable, or set Torch_DIR
+
+OPTION(WITH_ATEN "Build with ATen/PyTorch tensor support" OFF)
+
+IF (WITH_ATEN)
+	# Add our cmake module path
+	LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
+	# Try to find Torch
+	FIND_PACKAGE(Torch QUIET)
+	IF (TORCH_FOUND)
+		ADD_DEFINITIONS(-DHAVE_ATEN=1)
+		SET(HAVE_ATEN 1)
+		INCLUDE_DIRECTORIES(${TORCH_INCLUDE_DIRS})
+		MESSAGE(STATUS "ATen/PyTorch found: tensor support enabled")
+		# Torch requires C++17
+		SET(CMAKE_CXX_STANDARD 17)
+		SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+	ELSE (TORCH_FOUND)
+		MESSAGE(WARNING "ATen/PyTorch not found. Tensor support disabled.")
+		MESSAGE(STATUS "  To enable: pip install torch, or set Torch_DIR")
+		SET(WITH_ATEN OFF)
+	ENDIF (TORCH_FOUND)
+ELSE (WITH_ATEN)
+	MESSAGE(STATUS "ATen support: disabled (use -DWITH_ATEN=ON to enable)")
+ENDIF (WITH_ATEN)
 
 # ----------------------------------------------------------
 # Guile Python and Cython
@@ -210,6 +238,7 @@ FIND_PACKAGE(Doxygen)
 
 SUMMARY_ADD("WebSockets"   "WebSockets network server" HAVE_OPENSSL)
 SUMMARY_ADD("MCP"          "Model Context Protocol network server" HAVE_MCP)
+SUMMARY_ADD("ATen"         "ATen/PyTorch tensor support" HAVE_ATEN)
 SUMMARY_ADD("Cython"       "Cython (python) bindings" HAVE_CYTHON)
 SUMMARY_ADD("Doxygen"      "Code documentation" DOXYGEN_FOUND)
 SUMMARY_ADD("Python tests" "Python bindings pytest tests" HAVE_PYTEST)
