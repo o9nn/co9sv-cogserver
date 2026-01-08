@@ -1,12 +1,17 @@
 #
 # ATen/PyTorch integration for CogServer
 #
+# Provides Multi-Entity & Multi-Scale Network-Aware Tensor Logic
+# for the OpenCog AtomSpace, integrating with ATen and ATenSpace patterns.
+#
 
 # Source files
 SET(ATEN_SOURCES
 	TensorValue.cc
 	ATenSpace.cc
+	TensorLogic.cc
 	McpPlugATen.cc
+	McpPlugTensorLogic.cc
 )
 
 # Add Scheme bindings if Guile is available
@@ -56,7 +61,9 @@ INSTALL (TARGETS aten EXPORT CogServerTargets
 INSTALL (FILES
 	TensorValue.h
 	ATenSpace.h
+	TensorLogic.h
 	McpPlugATen.h
+	McpPlugTensorLogic.h
 	DESTINATION "include/opencog/cogserver/aten"
 )
 

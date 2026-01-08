@@ -456,4 +456,221 @@
 
 (export cog-nearest-by-embedding)
 
+;; ============================================================
+;; TensorLogic - Multi-Entity & Multi-Scale Network-Aware Operations
+;; ============================================================
+;;
+;; The following functions provide high-level tensor logic operations
+;; integrating ATen and ATenSpace patterns for neuro-symbolic AI.
+;;
+
+;; ---- Multi-Scale Operations ----
+
+(define* (cog-multiscale-embed atom key #:key (store #t))
+"
+  cog-multiscale-embed ATOM KEY
+  cog-multiscale-embed ATOM KEY #:store BOOL
+
+  Compute multi-scale embeddings for ATOM at different granularities:
+  - LOCAL: Direct node features
+  - NEIGHBOR: 1-hop neighborhood aggregation
+  - COMMUNITY: 2-hop cluster context
+  - GLOBAL: Whole-graph summary
+
+  If STORE is #t (default), stores result on the atom.
+
+  Example:
+    (cog-multiscale-embed (Concept \"cat\") (Predicate \"embedding\"))
+"
+  (if (not aten-available)
+    (throw 'aten-error "ATen not available"))
+  (aten-multiscale-compute atom key store))
+
+(export cog-multiscale-embed)
+
+(define* (cog-query-at-scale query-tensor scale #:optional (k 10))
+"
+  cog-query-at-scale QUERY-TENSOR SCALE
+  cog-query-at-scale QUERY-TENSOR SCALE K
+
+  Query atoms similar to QUERY-TENSOR at the specified SCALE level.
+  SCALE is one of: 'local, 'neighbor, 'community, 'global
+
+  Returns list of (atom . similarity) pairs.
+"
+  (if (not aten-available)
+    (throw 'aten-error "ATen not available"))
+  (aten-query-at-scale query-tensor (symbol->string scale) k))
+
+(export cog-query-at-scale)
+
+;; ---- Network-Aware Operations ----
+
+(define* (cog-network-embed atom key #:optional (layers 2))
+"
+  cog-network-embed ATOM KEY
+  cog-network-embed ATOM KEY LAYERS
+
+  Compute network-aware embedding that incorporates graph structure.
+  Uses LAYERS of graph neural network message passing.
+
+  The embedding encodes:
+  - Node features
+  - Degree centrality
+  - Type information
+  - Aggregated neighbor information
+"
+  (if (not aten-available)
+    (throw 'aten-error "ATen not available"))
+  (aten-network-embed atom key layers))
+
+(export cog-network-embed)
+
+(define* (cog-propagate-embeddings atoms key #:optional (iterations 3))
+"
+  cog-propagate-embeddings ATOMS KEY
+  cog-propagate-embeddings ATOMS KEY ITERATIONS
+
+  Propagate embeddings through the graph via message passing.
+  Updates embeddings for all ATOMS in place.
+"
+  (if (not aten-available)
+    (throw 'aten-error "ATen not available"))
+  (aten-propagate atoms key iterations))
+
+(export cog-propagate-embeddings)
+
+;; ---- Attention Operations (ECAN-style) ----
+
+(define* (cog-stimulate atom #:optional (stimulus 1.0))
+"
+  cog-stimulate ATOM
+  cog-stimulate ATOM STIMULUS
+
+  Stimulate attention on ATOM, increasing its Short-Term Importance (STI).
+  High-STI atoms are in the 'attentional focus' and get priority processing.
+"
+  (if (not aten-available)
+    (throw 'aten-error "ATen not available"))
+  (aten-stimulate atom stimulus))
+
+(export cog-stimulate)
+
+(define (cog-get-focus)
+"
+  cog-get-focus
+
+  Get the current attentional focus - atoms with highest attention.
+  Returns list of atoms sorted by STI (Short-Term Importance).
+"
+  (if (not aten-available)
+    (throw 'aten-error "ATen not available"))
+  (aten-get-focus))
+
+(export cog-get-focus)
+
+(define (cog-spread-attention source)
+"
+  cog-spread-attention SOURCE
+
+  Spread attention from SOURCE atom to connected atoms.
+  Uses both graph structure and Hebbian links for spreading.
+"
+  (if (not aten-available)
+    (throw 'aten-error "ATen not available"))
+  (aten-spread-attention source))
+
+(export cog-spread-attention)
+
+(define (cog-attention-cycle)
+"
+  cog-attention-cycle
+
+  Run one attention allocation cycle:
+  1. Decay STI (forgetting)
+  2. Spread attention from focus atoms
+  3. Update attentional focus
+"
+  (if (not aten-available)
+    (throw 'aten-error "ATen not available"))
+  (aten-attention-cycle))
+
+(export cog-attention-cycle)
+
+;; ---- Tensor Logic Inference ----
+
+(define (cog-tensor-analogy A B C candidates)
+"
+  cog-tensor-analogy A B C CANDIDATES
+
+  Solve analogy: A is to B as C is to ?
+
+  Uses embedding arithmetic: D = C + (B - A)
+  Returns the candidate most similar to the computed D.
+
+  Example:
+    ; king - man + woman = queen
+    (cog-tensor-analogy
+      (Concept \"man\") (Concept \"king\")
+      (Concept \"woman\")
+      (list (Concept \"queen\") (Concept \"princess\") (Concept \"duchess\")))
+"
+  (if (not aten-available)
+    (throw 'aten-error "ATen not available"))
+  (aten-analogy A B C candidates))
+
+(export cog-tensor-analogy)
+
+(define* (cog-tensor-unify pattern candidates #:optional (threshold 0.5))
+"
+  cog-tensor-unify PATTERN CANDIDATES
+  cog-tensor-unify PATTERN CANDIDATES THRESHOLD
+
+  Tensor-guided pattern unification.
+  Finds CANDIDATES that match PATTERN based on embedding similarity.
+
+  Returns list of binding maps for matches above THRESHOLD.
+"
+  (if (not aten-available)
+    (throw 'aten-error "ATen not available"))
+  (aten-unify pattern candidates threshold))
+
+(export cog-tensor-unify)
+
+;; ---- Multi-Entity Operations ----
+
+(define* (cog-aggregate-entities entities key #:optional (method 'attention))
+"
+  cog-aggregate-entities ENTITIES KEY
+  cog-aggregate-entities ENTITIES KEY METHOD
+
+  Aggregate embeddings from multiple entities into a single representation.
+
+  METHOD is one of:
+  - 'mean     : Simple average
+  - 'max      : Element-wise maximum
+  - 'sum      : Element-wise sum
+  - 'attention: Self-attention weighted (default)
+  - 'deepsets : Permutation-invariant (sum + max concatenation)
+"
+  (if (not aten-available)
+    (throw 'aten-error "ATen not available"))
+  (aten-aggregate-entities entities key (symbol->string method)))
+
+(export cog-aggregate-entities)
+
+(define* (cog-cluster-entities entities key #:optional (k 5))
+"
+  cog-cluster-entities ENTITIES KEY
+  cog-cluster-entities ENTITIES KEY K
+
+  Cluster ENTITIES into K groups based on embedding similarity.
+  Returns an association list mapping cluster IDs to entity lists.
+"
+  (if (not aten-available)
+    (throw 'aten-error "ATen not available"))
+  (aten-cluster-entities entities key k))
+
+(export cog-cluster-entities)
+
 ; End of module
