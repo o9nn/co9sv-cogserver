@@ -12,3 +12,8 @@ IF (HAVE_MCP)
 	ADD_SUBDIRECTORY (mcp-eval)
 	ADD_SUBDIRECTORY (mcp-tools)
 ENDIF (HAVE_MCP)
+
+# ATen/PyTorch tensor support
+IF (HAVE_ATEN)
+	ADD_SUBDIRECTORY (aten)
+ENDIF (HAVE_ATEN)
